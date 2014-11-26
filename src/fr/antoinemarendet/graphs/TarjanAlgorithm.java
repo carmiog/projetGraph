@@ -53,10 +53,10 @@ public class TarjanAlgorithm {
 		pointStack.push(v);
 		mark[v] = true;
 		markedStack.push(v);
-		for (int i = 0; i < graph.getAdjacencyList(v).size(); ++i) {
-			int w = graph.getAdjacencyList(v).get(i);
+		for (Integer w : graph.getAdjacencyList(v)) {
+			//int w = graph.getAdjacencyList(v).get(i);
 			if (w < s) {
-				graph.getAdjacencyList(v).remove(i);
+				graph.getAdjacencyList(v).remove(w);
 			} else if (w == s) {
 				List<Integer> newCircuit = new ArrayList<>();
 				for (int b : pointStack) {

@@ -1,10 +1,11 @@
 package fr.antoinemarendet.graphs;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class Graph {
-private List<List<Integer>> adjacencyLists = new ArrayList<>();
+private List<HashSet<Integer>> adjacencyLists = new ArrayList<>();
 	
 	public Graph() {
 		
@@ -12,8 +13,8 @@ private List<List<Integer>> adjacencyLists = new ArrayList<>();
 	
 	public Graph(Graph g) {
 		this();
-		for(List<Integer> nodeAdjacency : g.adjacencyLists) {
-			List<Integer> newList = new ArrayList<Integer>();
+		for(HashSet<Integer> nodeAdjacency : g.adjacencyLists) {
+			HashSet<Integer> newList = new HashSet<Integer>();
 			for(Integer adjacentNode : nodeAdjacency) {
 				newList.add(new Integer(adjacentNode));
 			}
@@ -21,11 +22,11 @@ private List<List<Integer>> adjacencyLists = new ArrayList<>();
 		}
 	}
 	
-	public List<Integer> getAdjacencyList(int id) {
+	public HashSet<Integer> getAdjacencyList(int id) {
 		return adjacencyLists.get(id);
 	}
 	
-	public void addNode(List<Integer> adjList) {
+	public void addNode(HashSet<Integer> adjList) {
 		adjacencyLists.add(adjList);
 	}
 	
@@ -45,7 +46,7 @@ private List<List<Integer>> adjacencyLists = new ArrayList<>();
 		for(int i = 0; i < adjacencyLists.size(); ++i) {
 			res += i + " : ";
 			for(int j = 0; j < adjacencyLists.get(i).size(); ++j) {
-				res += adjacencyLists.get(i).get(j) + ", ";
+				//res += adjacencyLists.get(i).get(j) + ", ";
 			}
 			res += "\n";
 		}

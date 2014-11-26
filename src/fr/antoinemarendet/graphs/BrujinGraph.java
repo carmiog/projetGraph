@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class BrujinGraph extends Graph {
 	private String input;
@@ -39,7 +40,7 @@ public class BrujinGraph extends Graph {
 		return results;
 	}
 
-	private String getSequenceList(List<Integer> list) {
+	private String getSequenceList(HashSet<Integer> list) {
 		String res = "";
 		for (int i : list) {
 			res += this.getSequence(i) + "(" + i + ") ";
@@ -48,48 +49,36 @@ public class BrujinGraph extends Graph {
 	}
 
 	private void buildGraph() {
-		buildSubsequencesAndStorePositions();
-		buildNodes();
-	}
-
-	private void buildNodes() {
-		List<List<Integer>> adjacencyLists = new ArrayList<>();
-		for (int i = 0; i < this.numberOfNodes(); ++i) {
-			adjacencyLists.add(new ArrayList<>());
-		}
-
-		for (int nodeId1 = 0; nodeId1 < this.numberOfNodes() - 1; ++nodeId1) {
-			String n1 = subsequences.get(nodeId1);
-			for (int nodeId2 = nodeId1 + 1; nodeId2 < this.numberOfNodes(); ++nodeId2) {
-				String n2 = subsequences.get(nodeId2);
-				if (isNodeABrujinSuccessor(n1, n2)) {
-					adjacencyLists.get(nodeId1).add(nodeId2);
-				}
-				if (isNodeABrujinSuccessor(n2, n1)) {
-					adjacencyLists.get(nodeId2).add(nodeId1);
-				}
-			}
-		}
-
-		for (List<Integer> n : adjacencyLists) {
-			addNode(n);
-		}
-	}
-
-	private void buildSubsequencesAndStorePositions() {
+		Map<String, Integer> nodePositions  = new HashMap<>();
+		List<HashSet<Integer>> successorLists = new ArrayList<>();
 		this.subsequencesPositionsLists = new HashMap<>();
-		for (int charIndex = 0; charIndex < input.length() - k + 1; ++charIndex) {
-			String subsequence = input.substring(charIndex, charIndex + k);
-			if (!subsequences.contains(subsequence)) {
-				subsequences.add(subsequence);
-				subsequencesPositionsLists.put(subsequence, new ArrayList<>());
+		
+		String subseq1, subseq2;
+		subseq2 = input.substring(0,k);
+		successorLists.add(new HashSet<Integer>());
+		nodePositions.put(subseq2, 0);
+		
+		this.subsequences.add(subseq2);
+		this.subsequencesPositionsLists.put(subseq2, new ArrayList<Integer>());
+		subsequencesPositionsLists.get(subseq2).add(0);
+		
+		for(int i=1; i < input.length() - k + 1; ++i){
+			subseq1 = subseq2;
+			subseq2 = input.substring(i,i+k);
+			if(!nodePositions.containsKey(subseq2)){
+				this.subsequences.add(subseq2);
+				this.subsequencesPositionsLists.put(subseq2, new ArrayList<Integer>());
+				
+				nodePositions.put(subseq2, successorLists.size());
+				successorLists.add(new HashSet<Integer>());
 			}
-			subsequencesPositionsLists.get(subsequence).add(charIndex);
+			subsequencesPositionsLists.get(subseq2).add(i);
+			successorLists.get(nodePositions.get(subseq1)).add(nodePositions.get(subseq2));
 		}
-	}
-
-	private boolean isNodeABrujinSuccessor(String n1, String n2) {
-		return n1.substring(1, k).equals(n2.substring(0, k - 1)) && this.input.contains(n1 + n2.charAt(k - 1));
+		
+		for (HashSet<Integer> n : successorLists) {
+			this.addNode(n);
+		}
 	}
 
 	private List<TandemRepetition> getTandemRepetitionsForNodes(HashSet<Integer> nodes) {
@@ -135,7 +124,7 @@ public class BrujinGraph extends Graph {
 		String res = "";
 		for (int i = 0; i < this.numberOfNodes(); ++i) {
 			res += getSequence(i) + "(" + i + ") : ";
-			List<Integer> adj = this.getAdjacencyList(i);
+			HashSet<Integer> adj = this.getAdjacencyList(i);
 			res += getSequenceList(adj);
 			res += "\n";
 		}
