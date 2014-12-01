@@ -1,0 +1,53 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[]{amsmath}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{hmargin=2.5cm}
+
+\title{Projet Graphs and Networks\\Recherche de répétitions dans les séquences génomiques}
+\author{Antoine Marendet}
+\date{26 novembre 2014}
+
+\begin{document}
+
+\maketitle
+
+\section{Objectif}
+
+L'objectif de ce projet est de répérer des répétitions de sous-séquences dans une séquence d'ADN $S$ en répérant des structures particulières dans un graphe, dit \textit{de Brujin}, associé à la séquence $S$.
+
+\section{Graphe}
+
+Un k-mer est une sous-séquence de longueur $k$ de $S$.\\
+Le graphe de Brujin $G(S,k)$ associé à $S$ pour un entier $k$ est défini ainsi : 
+\begin{itemize}
+\item les sommets sont tous les k-mer de $S$,
+\item il existe un arc du k-mer $x$ vers le k-mer $y$ si et seulement si :
+\begin{itemize}
+\item $x[2..k] = y[1..k-1]$,
+\item $x[1..k].y[k]$ est un (k+1)-mer de $S$.
+\end{itemize}
+\end{itemize} 
+
+Dans le programme, le graphe est construit de cette façon :
+\begin{enumerate}
+\item pour toutes les sous-chaînes $x$ de longueur $k$ de $S$ :
+    \begin{enumerate}
+    \item si 
+    \end{enumerate}
+\end{enumerate}
+
+\section{Répétitions en tandom}
+Dans un premier temps, on cherche un moyen de repérer les répétitions en tandem dans la séquence.\\
+Une répétition en tandem $RT(d, r, m)$ est caractérisée par sa position de départ $d$, son nombre de répétitions $r$, et le motif $m$.
+$RT(d,rm)$ est une répétition en tandem si et seulement si :
+\[
+\exists d,r \in \Re, r \ge 2, \forall i \in {1..r}, S[d+k*i..d+k*(i+1)] = m
+\]
+De telles répétitions se traduisent par des circuits élémentaires de longueur $k$ dans le graphe de Brujin. Malheureusement, nous n'avons pas trouvé de manière, à partir de la connaissance des ces circuits d'en déduire directement le k-mer qui présente une répétition en tandem et le nombre de ces répétitions.\\
+En pratique, on va donc commencer par rechercher les circuits élémentaires de longueur $k$ présents dans le graphe, puis pour chaque k-mer contenu dans ces graphes, on va recherche dans la séquence si ces k-mer présentent effectivement des répétitions en tandem, sachant que pour chacun de ces circuits particuliers, on est certains de trouver au moins une répétition en tandem.
+
+\end{document}
