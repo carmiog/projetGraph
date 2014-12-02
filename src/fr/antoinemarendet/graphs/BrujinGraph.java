@@ -2,6 +2,7 @@ package fr.antoinemarendet.graphs;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,10 +32,13 @@ public class BrujinGraph extends Graph {
 
 	public List<TandemRepetition> getTandemRepetitions() {
 		List<TandemRepetition> results = new ArrayList<>();
-		List<List<Integer>> circuits = this.getCircuitsByLength(k);
 		HashSet<Integer> subsequences = new HashSet<>();
-		for (List<Integer> c : circuits) {
-			subsequences.addAll(c);
+
+		for (int i = 1; i <= k; ++i) {
+			List<List<Integer>> circuits = this.getCircuitsByLength(i);
+			for (List<Integer> c : circuits) {
+				subsequences.addAll(c);
+			}
 		}
 		results = getTandemRepetitionsForNodes(subsequences);
 		return results;
@@ -49,33 +53,33 @@ public class BrujinGraph extends Graph {
 	}
 
 	private void buildGraph() {
-		Map<String, Integer> nodePositions  = new HashMap<>();
+		Map<String, Integer> nodePositions = new HashMap<>();
 		List<HashSet<Integer>> successorLists = new ArrayList<>();
 		this.subsequencesPositionsLists = new HashMap<>();
-		
+
 		String subseq1, subseq2;
-		subseq2 = input.substring(0,k);
+		subseq2 = input.substring(0, k);
 		successorLists.add(new HashSet<Integer>());
 		nodePositions.put(subseq2, 0);
-		
+
 		this.subsequences.add(subseq2);
 		this.subsequencesPositionsLists.put(subseq2, new ArrayList<Integer>());
 		subsequencesPositionsLists.get(subseq2).add(0);
-		
-		for(int i=1; i < input.length() - k + 1; ++i){
+
+		for (int i = 1; i < input.length() - k + 1; ++i) {
 			subseq1 = subseq2;
-			subseq2 = input.substring(i,i+k);
-			if(!nodePositions.containsKey(subseq2)){
+			subseq2 = input.substring(i, i + k);
+			if (!nodePositions.containsKey(subseq2)) {
 				this.subsequences.add(subseq2);
 				this.subsequencesPositionsLists.put(subseq2, new ArrayList<Integer>());
-				
+
 				nodePositions.put(subseq2, successorLists.size());
 				successorLists.add(new HashSet<Integer>());
 			}
 			subsequencesPositionsLists.get(subseq2).add(i);
 			successorLists.get(nodePositions.get(subseq1)).add(nodePositions.get(subseq2));
 		}
-		
+
 		for (HashSet<Integer> n : successorLists) {
 			this.addNode(n);
 		}
@@ -167,18 +171,26 @@ public class BrujinGraph extends Graph {
 			System.err.println("Error while reading input file.");
 			e.printStackTrace();
 		}
-		String graphvizImgFile = fileName.split("\\.")[0] + "_graph.png";
-		String graphvizTmpFile = fileName.split("\\.")[0] + "_graph_tmp.graphviz";
-
+		String[] fileSplit = fileName.split("/");
+		String fileNameWithoutExt = fileSplit[fileSplit.length - 1].split("\\.")[0];
+		String graphvizImgFile = "res/" + fileNameWithoutExt + "_graph.png";
+		String graphvizTmpFile = "res/" + fileNameWithoutExt + "_graph.tmp";
+		String resFile = "res/" + fileNameWithoutExt + "_res.txt";
 		BrujinGraph graph = new BrujinGraph(sequence, k);
-
+		
 		try {
 			BufferedWriter wr = new BufferedWriter(new FileWriter(graphvizTmpFile));
 			wr.write(graph.getGraphvizGraphDescription());
 			wr.flush();
 			wr.close();
-			Runtime.getRuntime().exec(
-					"circo -Tpng -o" + graphvizImgFile + " " + graphvizTmpFile);
+			Runtime.getRuntime().exec("circo -Tpng -o" + graphvizImgFile + " " + graphvizTmpFile);
+			File f = new File(graphvizTmpFile);
+			f.delete();
+			wr = new BufferedWriter(new FileWriter(resFile));
+			wr.write(graph.toString() + "\n");
+			wr.write(graph.getTandemRepetitions().toString() + "\n");
+			wr.flush();
+			wr.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
