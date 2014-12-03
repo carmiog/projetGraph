@@ -36,9 +36,9 @@ private List<Set<Integer>> adjacencyLists = new ArrayList<>();
 		return adjacencyLists.size();
 	}
 	
-	public List<List<Integer>> getCircuitsByLength(int circuitLength) {
+	public List<List<Integer>> getCircuits() {
 		TarjanAlgorithm tarjan = new TarjanAlgorithm(this);
-		List<List<Integer>> circuits = tarjan.getCircuitByLength(circuitLength);
+		List<List<Integer>> circuits = tarjan.getCircuits();
 		return circuits;
 	}
 	

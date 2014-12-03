@@ -1,6 +1,6 @@
 JC=javac
 JFLAGS=
-SRC=BrujinGraph.java
+SRC=src/fr/antoinemarendet/graphs/BrujinGraph.java
 BINDIR=bin
 SRCDIR=src
 all:

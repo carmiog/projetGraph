@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,14 +35,12 @@ public class BrujinGraph extends Graph {
 	public List<TandemRepetition> getTandemRepetitions() {
 		List<TandemRepetition> results = new ArrayList<>();
 		HashSet<Integer> subsequences = new HashSet<>();
-
-		for (int i = 1; i <= k; ++i) {
-			List<List<Integer>> circuits = this.getCircuitsByLength(i);
-			for (List<Integer> c : circuits) {
-				subsequences.addAll(c);
-			}
+		List<List<Integer>> circuits = this.getCircuits();
+		for (List<Integer> c : circuits) {
+			subsequences.addAll(c);
+			results.addAll(getTandemRepetitionsForNodesInCirc(subsequences));
+			subsequences.clear();
 		}
-		results = getTandemRepetitionsForNodes(subsequences);
 		return results;
 	}
 
@@ -85,7 +84,8 @@ public class BrujinGraph extends Graph {
 			this.addNode(n);
 		}
 	}
-
+	
+	@Deprecated
 	private List<TandemRepetition> getTandemRepetitionsForNodes(Set<Integer> nodes) {
 		List<TandemRepetition> tandemRepetitions = new ArrayList<>();
 		for (Integer node : nodes) {
@@ -93,10 +93,62 @@ public class BrujinGraph extends Graph {
 			List<TandemRepetition> nodeTandemRepetitions = getSubsequenceTandemRepetitions(nodeSubsequence);
 			tandemRepetitions.addAll(nodeTandemRepetitions);
 		}
-		
+
 		return tandemRepetitions;
 	}
 
+	private List<TandemRepetition> getTandemRepetitionsForNodesInCirc(Set<Integer> nodes) {
+		List<TandemRepetition> tandemRepetitions = new ArrayList<>();
+		System.out.println(nodes);
+		for (Integer node : nodes) {
+			String nodeSubsequence = getSequence(node);
+			if (nodes.size() >= k) {
+				List<TandemRepetition> nodeTandemRepetitions = getSubsequenceTandemRepetitionsByLength(nodeSubsequence,
+						nodes.size());
+				tandemRepetitions.addAll(nodeTandemRepetitions);
+			} else {
+				// Comb cycles avec noeuds
+			}
+		}
+
+		return tandemRepetitions;
+	}
+
+	private List<TandemRepetition> getSubsequenceTandemRepetitionsByLength(String subsequence, int cSize) {
+		List<TandemRepetition> tandemRepetitions = new ArrayList<>();
+		List<Integer> sequencePositions = subsequencesPositionsLists.get(subsequence);
+		int repetitions = 1;
+		int tandemRepetitionStartPosition = sequencePositions.get(0);
+		int listIndex = 0;
+		int seqPos1 = sequencePositions.get(listIndex);
+		int seqPos2 = sequencePositions.get(listIndex);
+		while (listIndex < sequencePositions.size() - 1) {
+			seqPos1 = sequencePositions.get(listIndex);
+			seqPos2 = sequencePositions.get(listIndex + 1);
+			// Si on sort de la séquence, break
+			if (seqPos1 + cSize * 2 > input.length() - 1) {
+				break;
+			}
+			String seq1 = input.substring(seqPos1 + k, seqPos1 + cSize);
+			String seq2 = input.substring(seqPos1 + cSize + k, seqPos1 + cSize * 2);
+			if (seqPos2 - seqPos1 == cSize && (cSize == k || seq1.equals(seq2))) {
+				repetitions++;
+			} else if (repetitions > 1) {
+				tandemRepetitions.add(new TandemRepetition(tandemRepetitionStartPosition, repetitions, seq1));
+				repetitions = 1;
+				tandemRepetitionStartPosition = sequencePositions.get(listIndex + 1);
+
+			}
+			++listIndex;
+		}
+		if (repetitions > 1) {
+			tandemRepetitions.add(new TandemRepetition(tandemRepetitionStartPosition, repetitions, input.substring(
+					seqPos1, seqPos1 + cSize)));
+		}
+		return tandemRepetitions;
+	}
+
+	@Deprecated
 	private List<TandemRepetition> getSubsequenceTandemRepetitions(String subsequence) {
 		List<TandemRepetition> tandemRepetitions = new ArrayList<>();
 		List<Integer> sequencePositions = subsequencesPositionsLists.get(subsequence);
@@ -179,7 +231,7 @@ public class BrujinGraph extends Graph {
 		String graphvizTmpFile = "res/" + fileNameWithoutExt + "_graph.tmp";
 		String resFile = "res/" + fileNameWithoutExt + "_res.txt";
 		BrujinGraph graph = new BrujinGraph(sequence, k);
-		
+
 		try {
 			BufferedWriter wr = new BufferedWriter(new FileWriter(graphvizTmpFile));
 			wr.write(graph.getGraphvizGraphDescription());
@@ -187,7 +239,7 @@ public class BrujinGraph extends Graph {
 			wr.close();
 			Runtime.getRuntime().exec("circo -Tpng -o" + graphvizImgFile + " " + graphvizTmpFile);
 			File f = new File(graphvizTmpFile);
-			//f.delete();
+			// f.delete();
 			wr = new BufferedWriter(new FileWriter(resFile));
 			wr.write(graph.toString() + "\n");
 			wr.write(graph.getTandemRepetitions().toString() + "\n");
