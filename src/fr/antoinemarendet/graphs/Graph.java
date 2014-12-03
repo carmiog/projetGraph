@@ -1,11 +1,13 @@
 package fr.antoinemarendet.graphs;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Graph {
-private List<HashSet<Integer>> adjacencyLists = new ArrayList<>();
+private List<Set<Integer>> adjacencyLists = new ArrayList<>();
 	
 	public Graph() {
 		
@@ -13,8 +15,8 @@ private List<HashSet<Integer>> adjacencyLists = new ArrayList<>();
 	
 	public Graph(Graph g) {
 		this();
-		for(HashSet<Integer> nodeAdjacency : g.adjacencyLists) {
-			HashSet<Integer> newList = new HashSet<Integer>();
+		for(Set<Integer> nodeAdjacency : g.adjacencyLists) {
+			Set<Integer> newList = Collections.synchronizedSet(new HashSet<Integer>());
 			for(Integer adjacentNode : nodeAdjacency) {
 				newList.add(new Integer(adjacentNode));
 			}
@@ -22,7 +24,7 @@ private List<HashSet<Integer>> adjacencyLists = new ArrayList<>();
 		}
 	}
 	
-	public HashSet<Integer> getAdjacencyList(int id) {
+	public Set<Integer> getAdjacencyList(int id) {
 		return adjacencyLists.get(id);
 	}
 	

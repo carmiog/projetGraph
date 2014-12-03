@@ -1,6 +1,7 @@
 package fr.antoinemarendet.graphs;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -28,19 +29,19 @@ public class TarjanAlgorithm {
 	}
 
 	public List<List<Integer>> getCircuits() {
-		if(circuits == null) {
+		if (circuits == null) {
 			compute();
 		}
 		return circuits;
 	}
-	
+
 	public List<List<Integer>> getCircuitByLength(int length) {
-		if(circuits == null) {
+		if (circuits == null) {
 			compute();
 		}
 		List<List<Integer>> results = new ArrayList<>();
-		for(List<Integer> cycle : circuits) {
-			if(cycle.size() == length) {
+		for (List<Integer> cycle : circuits) {
+			if (cycle.size() == length) {
 				results.add(cycle);
 			}
 		}
@@ -53,28 +54,30 @@ public class TarjanAlgorithm {
 		pointStack.push(v);
 		mark[v] = true;
 		markedStack.push(v);
-		for (Integer w : graph.getAdjacencyList(v)) {
-			//int w = graph.getAdjacencyList(v).get(i);
-			if (w < s) {
-				graph.getAdjacencyList(v).remove(w);
-			} else if (w == s) {
-				List<Integer> newCircuit = new ArrayList<>();
-				for (int b : pointStack) {
-					newCircuit.add(b);
+		synchronized (graph.getAdjacencyList(v)) {
+			for (Iterator<Integer> wit = graph.getAdjacencyList(v).iterator(); wit.hasNext();) {
+				int w = wit.next();
+				if (w < s) {
+					wit.remove();
+				} else if (w == s) {
+					List<Integer> newCircuit = new ArrayList<>();
+					for (int b : pointStack) {
+						newCircuit.add(b);
+					}
+					circuits.add(newCircuit);
+					f = true;
+				} else if (!mark[w]) {
+					g = backtrack(w);
+					f = f || g;
 				}
-				circuits.add(newCircuit);
-				f = true;
-			} else if (!mark[w]) {
-				g = backtrack(w);
-				f = f || g;
 			}
-		}
-		if (f) {
-			while (markedStack.peek() != v) {
-				int u = markedStack.pop();
-				mark[u] = false;
+			if (f) {
+				while (markedStack.peek() != v) {
+					int u = markedStack.pop();
+					mark[u] = false;
+				}
+				mark[markedStack.pop()] = false;
 			}
-			mark[markedStack.pop()] = false;
 		}
 		pointStack.pop();
 		return f;

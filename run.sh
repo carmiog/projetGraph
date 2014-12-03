@@ -5,4 +5,4 @@ MAINCLASS="fr.antoinemarendet.graphs.BrujinGraph"
 CLASSPATH="bin"
 JAVAOPTIONS="-cp $CLASSPATH"
 ./compile.sh
-$JAVA $JAVAOPTIONS $MAINCLASS $1
+time $JAVA $JAVAOPTIONS $MAINCLASS $1

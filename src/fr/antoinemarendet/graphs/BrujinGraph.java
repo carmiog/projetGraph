@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class BrujinGraph extends Graph {
 	private String input;
@@ -44,9 +45,9 @@ public class BrujinGraph extends Graph {
 		return results;
 	}
 
-	private String getSequenceList(HashSet<Integer> list) {
+	private String getSequenceList(Set<Integer> adj) {
 		String res = "";
-		for (int i : list) {
+		for (int i : adj) {
 			res += this.getSequence(i) + "(" + i + ") ";
 		}
 		return res;
@@ -85,13 +86,14 @@ public class BrujinGraph extends Graph {
 		}
 	}
 
-	private List<TandemRepetition> getTandemRepetitionsForNodes(HashSet<Integer> nodes) {
+	private List<TandemRepetition> getTandemRepetitionsForNodes(Set<Integer> nodes) {
 		List<TandemRepetition> tandemRepetitions = new ArrayList<>();
 		for (Integer node : nodes) {
 			String nodeSubsequence = getSequence(node);
 			List<TandemRepetition> nodeTandemRepetitions = getSubsequenceTandemRepetitions(nodeSubsequence);
 			tandemRepetitions.addAll(nodeTandemRepetitions);
 		}
+		
 		return tandemRepetitions;
 	}
 
@@ -128,7 +130,7 @@ public class BrujinGraph extends Graph {
 		String res = "";
 		for (int i = 0; i < this.numberOfNodes(); ++i) {
 			res += getSequence(i) + "(" + i + ") : ";
-			HashSet<Integer> adj = this.getAdjacencyList(i);
+			Set<Integer> adj = this.getAdjacencyList(i);
 			res += getSequenceList(adj);
 			res += "\n";
 		}
@@ -185,7 +187,7 @@ public class BrujinGraph extends Graph {
 			wr.close();
 			Runtime.getRuntime().exec("circo -Tpng -o" + graphvizImgFile + " " + graphvizTmpFile);
 			File f = new File(graphvizTmpFile);
-			f.delete();
+			//f.delete();
 			wr = new BufferedWriter(new FileWriter(resFile));
 			wr.write(graph.toString() + "\n");
 			wr.write(graph.getTandemRepetitions().toString() + "\n");
